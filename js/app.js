@@ -29,8 +29,6 @@ document.addEventListener("visibilitychange", () => {
 /* ── Boot: show play overlay; defer stream until user taps ── */
 let _streamStarted = false;
 
-document.body.classList.add("pre-stream");
-
 function _startStream() {
   if (_streamStarted) return;
   _streamStarted = true;
