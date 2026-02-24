@@ -276,15 +276,42 @@
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" /></noscript>
 
-    <!-- ══════ Styles ══════ -->
-    <link rel="stylesheet" href="css/main.css" />
-    <link rel="stylesheet" href="css/player.css" />
+    <!-- ══════ Critical CSS (inline — covers initial render, prevents FOUC) ══════ -->
+    <style>
+      *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+      :root{--red:#9e007e;--bg:#181e24;--surface:#181e24;--border:#181e24;--text:#f0ede8;--muted:#666370;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
+      html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-family:'Tajawal',sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+      body{display:flex;flex-direction:column;background-image:radial-gradient(ellipse 100% 50% at 50% -5%,rgba(158,0,126,.08),transparent 60%);padding-top:var(--safe-top);padding-bottom:var(--safe-bottom)}
+      header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;flex-shrink:0;background:rgba(24,30,36,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);gap:12px}
+      .logo{display:flex;align-items:center;gap:9px;flex-shrink:0}
+      .logo-img{width:34px;height:34px;border-radius:8px;object-fit:cover}
+      .logo-text{font-size:16px;font-weight:700;letter-spacing:1.5px;white-space:nowrap}
+      .status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:4px 11px;border-radius:20px;background:var(--surface);border:1px solid var(--border);white-space:nowrap}
+      .dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0}
+      .player-wrap{flex:1;position:relative;background:#000;overflow:hidden;min-height:0}
+      video{width:100%;height:100%;display:block;object-fit:contain;background:#000}
+      .player-figure{width:100%;height:100%;position:relative;display:flex;background:#000;margin:0;padding:0}
+      .play-overlay{position:absolute;inset:0;z-index:25;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse 70% 55% at 50% 50%,rgba(158,0,126,.22) 0%,transparent 70%),linear-gradient(160deg,#0c0118 0%,#130523 40%,#0a010f 70%,#060010 100%);cursor:pointer}
+      .play-overlay-btn{width:72px;height:72px;border-radius:50%;border:none;background:rgba(158,0,126,.85);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+      .play-overlay-btn svg{width:36px;height:36px;margin-left:3px}
+      .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,.82);z-index:20}
+      .overlay.gone{opacity:0;visibility:hidden;pointer-events:none}
+      .pre-stream #status,.pre-stream #playerControls{display:none}
+    </style>
+
+    <!-- ══════ Styles (async — non-critical) ══════ -->
+    <link rel="preload" as="style" href="css/main.css" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" as="style" href="css/player.css" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="css/main.css" /><link rel="stylesheet" href="css/player.css" /></noscript>
   </head>
   <body class="pre-stream">
     <!-- ── Header ── -->
     <header>
       <div class="logo">
-        <img src="assets/icons/icon-72x72.png" alt="رؤيا" class="logo-img" fetchpriority="high" />
+        <picture>
+          <source srcset="assets/icons/icon-72x72.webp" type="image/webp" />
+          <img src="assets/icons/icon-72x72.png" alt="رؤيا" class="logo-img" fetchpriority="high" />
+        </picture>
         <div class="logo-text">رؤيا</div>
       </div>
       <div class="status" id="status">
@@ -578,12 +605,12 @@
     </div>
 
     <!-- ══════ Scripts ══════ -->
-    <script src="js/config.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/controls.js"></script>
-    <script src="js/quality.js"></script>
-    <script src="js/player.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/pwa.js"></script>
+    <script src="js/config.js" defer></script>
+    <script src="js/ui.js" defer></script>
+    <script src="js/controls.js" defer></script>
+    <script src="js/quality.js" defer></script>
+    <script src="js/player.js" defer></script>
+    <script src="js/app.js" defer></script>
+    <script src="js/pwa.js" defer></script>
   </body>
 </html>
