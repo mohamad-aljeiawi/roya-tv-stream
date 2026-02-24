@@ -2,10 +2,7 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- ══════ Core SEO ══════ -->
     <title>رؤيا | البث المباشر LIVE | Roya TV</title>
@@ -276,20 +273,19 @@
     <!-- ══════ Fonts ══════ -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" /></noscript>
 
     <!-- ══════ Styles ══════ -->
-    <link rel="stylesheet" href="css/main.css" />
-    <link rel="stylesheet" href="css/player.css" />
+    <link rel="preload" as="style" href="css/main.css" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" as="style" href="css/player.css" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="css/main.css" /><link rel="stylesheet" href="css/player.css" /></noscript>
   </head>
   <body>
     <!-- ── Header ── -->
     <header>
       <div class="logo">
-        <img src="assets/icons/icon-72x72.png" alt="رؤيا" class="logo-img" />
+        <img src="assets/icons/icon-72x72.png" alt="رؤيا" class="logo-img" fetchpriority="high" />
         <div class="logo-text">رؤيا</div>
       </div>
       <div class="status" id="status">
@@ -583,7 +579,6 @@
     </div>
 
     <!-- ══════ Scripts ══════ -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
     <script src="js/config.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/controls.js"></script>

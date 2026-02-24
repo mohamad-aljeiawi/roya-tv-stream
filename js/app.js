@@ -36,7 +36,16 @@ function _startStream() {
   _streamStarted = true;
   document.body.classList.remove("pre-stream");
   document.getElementById("playOverlay").style.display = "none";
-  Player.load();
+
+  // Load HLS.js on-demand (saves ~110 KiB on initial page load)
+  if (typeof Hls !== "undefined") {
+    Player.load();
+  } else {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js";
+    s.onload = () => Player.load();
+    document.head.appendChild(s);
+  }
 }
 
 document

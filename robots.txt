@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://roya-tv.vercel.app/sitemap.xml
