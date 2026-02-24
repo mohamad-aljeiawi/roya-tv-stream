@@ -1,0 +1,434 @@
+/* ══════════════════════════════════════
+   ROYA TV — Main Stylesheet
+   ══════════════════════════════════════ */
+
+/* ── Reset & Variables ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --red: #9e007e;
+  --red-dark: #9e007e;
+  --red-glow: rgba(158, 0, 126, 0.15);
+  --bg: #181e24;
+  --surface: #181e24;
+  --surface2: #181e24;
+  --border: #181e24;
+  --text: #f0ede8;
+  --muted: #666370;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── Base ── */
+html, body {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Tajawal', sans-serif;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background-image: radial-gradient(
+    ellipse 100% 50% at 50% -5%,
+    rgba(158, 0, 126, 0.08),
+    transparent 60%
+  );
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+
+/* ── Header ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  flex-shrink: 0;
+  background: rgba(24, 30, 36, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+/* ── Logo ── */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+
+.logo-icon {
+  width: 30px;
+  height: 30px;
+  background: var(--red);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 0 12px var(--red-glow);
+}
+
+.logo-img {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.logo-text {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+
+.logo-text em {
+  color: var(--red);
+  font-style: normal;
+}
+
+/* ── Status Badge ── */
+.status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 11px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: border-color 0.4s, color 0.4s;
+  white-space: nowrap;
+}
+
+.status.live  { border-color: rgba(158, 0, 126, 0.5); }
+.status.load  { border-color: rgba(255, 170, 0, 0.4); color: #ffaa00; }
+.status.error { border-color: rgba(255, 60, 60, 0.4); color: #ff5050; }
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+  transition: background 0.4s;
+}
+
+.status.live .dot  { background: var(--red); animation: blink 1.8s ease-in-out infinite; }
+.status.load .dot  { background: #ffaa00;   animation: blink 0.7s ease-in-out infinite; }
+.status.error .dot { background: #ff5050; }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.75); }
+}
+
+/* ── Player ── */
+.player-wrap {
+  flex: 1;
+  position: relative;
+  background: #000;
+  overflow: hidden;
+  min-height: 0;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  background: #000;
+}
+
+/* ── Overlay ── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: opacity 0.35s, visibility 0.35s;
+  z-index: 20;
+}
+
+.overlay.gone {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.spinner {
+  width: 52px;
+  height: 52px;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.overlay-msg {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  line-height: 1.7;
+  max-width: 260px;
+}
+
+.overlay-msg strong {
+  color: rgba(255, 255, 255, 0.85);
+  display: block;
+  margin-bottom: 4px;
+  font-size: 15px;
+}
+
+.btn-retry {
+  padding: 10px 28px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  display: none;
+}
+
+.btn-retry:hover  { background: #e01535; }
+.btn-retry:active { transform: scale(0.97); }
+
+/* ── Footer ── */
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 14px;
+  flex-shrink: 0;
+  background: rgba(24, 30, 36, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  gap: 12px;
+  min-height: 42px;
+}
+
+/* ── Token Timer ── */
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.timer-bar {
+  width: 55px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.timer-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--red);
+  transition: width 1s linear, background 0.5s;
+}
+
+.timer-label {
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+}
+
+/* ── Quality Menu ── */
+.q-wrap {
+  position: relative;
+}
+
+.q-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  white-space: nowrap;
+}
+
+.q-btn:hover     { border-color: var(--red); }
+.q-btn svg       { width: 11px; height: 11px; transition: transform 0.2s; flex-shrink: 0; }
+.q-btn.open svg  { transform: rotate(180deg); }
+
+.q-menu {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 0;
+  min-width: 145px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(5px);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 99;
+}
+
+.q-menu.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.q-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 13px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.q-option:last-child { border-bottom: none; }
+.q-option:hover      { background: rgba(255, 255, 255, 0.04); }
+.q-option.active     { color: var(--red); }
+
+.q-check {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+.q-option.active .q-check { opacity: 1; }
+
+.q-bw {
+  margin-right: auto;
+  font-size: 10.5px;
+  color: var(--muted);
+  padding-right: 4px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .timer-bar { width: 38px; }
+  .logo-text { font-size: 14px; }
+  .timer span:first-child { display: none; }
+}
+
+/* ── PWA Install Banner ── */
+.install-banner {
+  position: fixed;
+  bottom: -80px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.install-banner.visible {
+  bottom: calc(12px + var(--safe-bottom));
+}
+
+.install-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.install-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.install-text strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.install-text span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.install-btn {
+  padding: 8px 18px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.install-btn:hover { background: #e01535; }
+
+.install-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.install-close:hover { color: var(--text); }
