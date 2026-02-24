@@ -10,7 +10,10 @@
   "lang": "ar",
   "theme_color": "#181e24",
   "background_color": "#181e24",
-  "categories": ["entertainment", "news"],
+  "categories": [
+    "entertainment",
+    "news"
+  ],
   "icons": [
     {
       "src": "assets/icons/icon-72x72.png",

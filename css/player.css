@@ -1,0 +1,598 @@
+/* ══════════════════════════════════════
+   player.css — Custom HLS Player Styles
+   ══════════════════════════════════════ */
+
+.player-figure {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    background: #000;
+    margin: 0;
+    padding: 0;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* ── Play Overlay (tap-to-start for unmuted audio) ── */
+.play-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 25;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(ellipse 70% 55% at 50% 50%, rgba(158, 0, 126, 0.22) 0%, transparent 70%),
+        linear-gradient(160deg, #0c0118 0%, #130523 40%, #0a010f 70%, #060010 100%);
+    cursor: pointer;
+}
+
+.play-overlay-btn {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(158, 0, 126, 0.85);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.play-overlay-btn:hover {
+    transform: scale(1.1);
+    background: rgba(158, 0, 126, 1);
+}
+
+.play-overlay-btn svg {
+    width: 36px;
+    height: 36px;
+    margin-left: 3px;
+    /* optical centering for play triangle */
+}
+
+/* ── Interaction Area (Gestures, Ripple, Loading) ── */
+.player-interaction-area {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: auto;
+    overflow: hidden;
+    touch-action: none;
+    /* Prevent pull-to-refresh / native scrolling */
+}
+
+.interaction-ripple {
+    position: absolute;
+    width: 15vw;
+    height: 100%;
+    top: 0;
+    background: rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+    opacity: 0;
+    border-radius: 50%;
+    transform: scale(0.5);
+    transition: opacity 0.3s, transform 0.4s ease-out;
+    will-change: transform, opacity;
+}
+
+.interaction-ripple.active-right {
+    right: -5vw;
+    opacity: 1;
+    transform: scale(3);
+}
+
+.interaction-ripple.active-left {
+    left: -5vw;
+    opacity: 1;
+    transform: scale(3);
+}
+
+.inline-spinner {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    /* Black screen background to highlight the loading */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 12;
+}
+
+.inline-error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 12px 24px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    z-index: 12;
+    border: 1px solid rgba(158, 0, 126, 0.3);
+}
+
+.inline-error span {
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+#inlineRetryBtn {
+    background: var(--red);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.speed-toast {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+/* ── Custom Controls Layer ── */
+.player-controls {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+    /* Let clicks pass to interaction area where appropriate */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0.3s;
+    will-change: opacity, visibility;
+}
+
+.player-controls.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.player-controls.hidden * {
+    pointer-events: none;
+}
+
+.player-controls-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    /* Base gradient height */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.player-controls-bottom {
+    position: relative;
+    z-index: 2;
+    padding: 0 16px 16px 16px;
+    pointer-events: auto;
+    /* Catch clicks on controls */
+}
+
+/* ── Progress Area ── */
+.progress-area {
+    width: 100%;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    margin-bottom: 4px;
+}
+
+.progress-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    position: relative;
+    transition: height 0.15s ease;
+}
+
+.progress-area:hover .progress-track {
+    height: 6px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--red);
+    border-radius: 2px;
+    width: 100%;
+    /* Default to 100% since it's a live stream mostly */
+    position: relative;
+    transform-origin: left center;
+}
+
+
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.15s ease;
+}
+
+
+
+.progress-area:hover .progress-fill::after {
+    transform: translateY(-50%) scale(1);
+}
+
+.progress-tooltip {
+    position: absolute;
+    top: -25px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-50%);
+    transition: opacity 0.15s;
+    white-space: nowrap;
+}
+
+
+
+.progress-area:hover .progress-tooltip {
+    opacity: 1;
+}
+
+/* ── Controls Row ── */
+.controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.controls-left,
+.controls-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ── Generic Buttons ── */
+.ctrl-btn {
+    background: transparent;
+    border: none;
+    min-width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.85);
+    transition: color 0.2s ease, transform 0.15s;
+    padding: 0;
+    position: relative;
+}
+
+.ctrl-btn:hover {
+    color: #ffffff;
+}
+
+.ctrl-btn:active {
+    transform: scale(0.92);
+}
+
+.ctrl-btn svg {
+    width: 22px;
+    height: 22px;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-hidden {
+    opacity: 0;
+    transform: scale(0.5) rotate(-30deg);
+    pointer-events: none;
+}
+
+/* ── Volume Container ── */
+.volume-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.volume-slider-wrap {
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+    display: flex;
+    align-items: center;
+    margin-right: -4px;
+}
+
+.volume-container:hover .volume-slider-wrap,
+.volume-slider-wrap.active-touch {
+    width: 70px;
+    opacity: 1;
+    overflow: visible;
+    padding-right: 8px;
+}
+
+.volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, var(--red) var(--value, 100%), rgba(255, 255, 255, 0.3) var(--value, 100%));
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Time & Live Indicator ── */
+.time-display {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 8px;
+    min-width: 45px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.live-indicator:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.live-indicator.active {
+    color: #fff;
+}
+
+.live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transition: background 0.3s;
+}
+
+.live-indicator.active .live-dot {
+    background: #ff3b30;
+    animation: live-pulse 2s infinite ease-in-out;
+}
+
+@keyframes live-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.5);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ── Quality Menu ── */
+.controls-q-wrap {
+    position: relative;
+}
+
+.q-btn-icon {
+    gap: 4px;
+    min-width: auto;
+    padding: 0 8px;
+}
+
+.q-btn-icon svg {
+    position: static;
+}
+
+.q-badge {
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.custom-q-menu {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    right: 0;
+    /* Visual right alignment for settings menu */
+    min-width: 145px;
+    background: rgba(24, 30, 36, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 6px 0;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: bottom left;
+}
+
+.custom-q-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.custom-q-menu .q-option {
+    padding: 10px 16px;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-weight: 500;
+}
+
+.custom-q-menu .q-option:hover {
+    background: rgba(158, 0, 126, 0.3);
+}
+
+.custom-q-menu .q-option.active {
+    color: #ff85e0;
+}
+
+.custom-q-menu .q-check {
+    stroke: #ff85e0;
+}
+
+/* ── Fullscreen Adjustments ── */
+:fullscreen .player-wrap,
+:-webkit-full-screen .player-wrap {
+    width: 100vw;
+    height: 100vh;
+}
+
+:fullscreen .player-controls-bottom,
+:-webkit-full-screen .player-controls-bottom {
+    padding: 0 32px 32px 32px;
+}
+
+:fullscreen .ctrl-btn svg,
+:-webkit-full-screen .ctrl-btn svg {
+    width: 26px;
+    height: 26px;
+}
+
+:fullscreen .ctrl-btn,
+:-webkit-full-screen .ctrl-btn {
+    min-width: 52px;
+    height: 52px;
+}
+
+:fullscreen .time-display,
+:-webkit-full-screen .time-display {
+    font-size: 15px;
+}
+
+:fullscreen .live-indicator,
+:-webkit-full-screen .live-indicator {
+    font-size: 14px;
+}
+
+:fullscreen .q-badge,
+:-webkit-full-screen .q-badge {
+    font-size: 14px;
+}
+
+/* ── Mobile specific adjustments ── */
+@media (max-width: 768px) {
+    .volume-slider-wrap {
+        display: none !important;
+        /* Touch uses swipe gestures mostly, but let's hide slider visually on small screens */
+    }
+
+    .player-controls-bottom {
+        padding: 0 12px 12px 12px;
+    }
+
+    .ctrl-btn {
+        min-width: 44px;
+        /* Maintain 44px min touch target */
+    }
+
+    .time-display {
+        display: none;
+        /* Can get cramped on mobile portrait, we keep live indicator */
+    }
+}
+
+/* Desktop Hover hide cursor */
+.player-wrap.hide-cursor {
+    cursor: none;
+}

@@ -3,7 +3,9 @@
    ══════════════════════════════════════ */
 
 /* ── Reset & Variables ── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -25,7 +27,8 @@
 }
 
 /* ── Base ── */
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   background: var(--bg);
@@ -39,11 +42,9 @@ html, body {
 body {
   display: flex;
   flex-direction: column;
-  background-image: radial-gradient(
-    ellipse 100% 50% at 50% -5%,
-    rgba(158, 0, 126, 0.08),
-    transparent 60%
-  );
+  background-image: radial-gradient(ellipse 100% 50% at 50% -5%,
+      rgba(158, 0, 126, 0.08),
+      transparent 60%);
   padding-top: var(--safe-top);
   padding-bottom: var(--safe-bottom);
 }
@@ -118,9 +119,19 @@ header {
   white-space: nowrap;
 }
 
-.status.live  { border-color: rgba(158, 0, 126, 0.5); }
-.status.load  { border-color: rgba(255, 170, 0, 0.4); color: #ffaa00; }
-.status.error { border-color: rgba(255, 60, 60, 0.4); color: #ff5050; }
+.status.live {
+  border-color: rgba(158, 0, 126, 0.5);
+}
+
+.status.load {
+  border-color: rgba(255, 170, 0, 0.4);
+  color: #ffaa00;
+}
+
+.status.error {
+  border-color: rgba(255, 60, 60, 0.4);
+  color: #ff5050;
+}
 
 .dot {
   width: 7px;
@@ -131,13 +142,32 @@ header {
   transition: background 0.4s;
 }
 
-.status.live .dot  { background: var(--red); animation: blink 1.8s ease-in-out infinite; }
-.status.load .dot  { background: #ffaa00;   animation: blink 0.7s ease-in-out infinite; }
-.status.error .dot { background: #ff5050; }
+.status.live .dot {
+  background: var(--red);
+  animation: blink 1.8s ease-in-out infinite;
+}
+
+.status.load .dot {
+  background: #ffaa00;
+  animation: blink 0.7s ease-in-out infinite;
+}
+
+.status.error .dot {
+  background: #ff5050;
+}
 
 @keyframes blink {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.4; transform: scale(0.75); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(0.75);
+  }
 }
 
 /* ── Player ── */
@@ -182,14 +212,39 @@ video {
 .spinner {
   width: 52px;
   height: 52px;
-  border: 3px solid rgba(255, 255, 255, 0.08);
-  border-top-color: var(--red);
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
+  animation: spinner-rotate 2s linear infinite;
+  transform-origin: center center;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.spinner-path {
+  stroke: var(--red);
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: spinner-dash 1.5s ease-in-out infinite;
+}
+
+@keyframes spinner-rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinner-dash {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    stroke-dasharray: 90, 200;
+    stroke-dashoffset: -35px;
+  }
+
+  100% {
+    stroke-dasharray: 90, 200;
+    stroke-dashoffset: -124px;
+  }
 }
 
 .overlay-msg {
@@ -221,52 +276,12 @@ video {
   display: none;
 }
 
-.btn-retry:hover  { background: #e01535; }
-.btn-retry:active { transform: scale(0.97); }
-
-/* ── Footer ── */
-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 7px 14px;
-  flex-shrink: 0;
-  background: rgba(24, 30, 36, 0.97);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
-  gap: 12px;
-  min-height: 42px;
+.btn-retry:hover {
+  background: #e01535;
 }
 
-/* ── Token Timer ── */
-.timer {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 11.5px;
-  color: var(--muted);
-  flex-shrink: 0;
-}
-
-.timer-bar {
-  width: 55px;
-  height: 3px;
-  background: var(--border);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.timer-fill {
-  height: 100%;
-  border-radius: 2px;
-  background: var(--red);
-  transition: width 1s linear, background 0.5s;
-}
-
-.timer-label {
-  font-variant-numeric: tabular-nums;
-  min-width: 36px;
+.btn-retry:active {
+  transform: scale(0.97);
 }
 
 /* ── Quality Menu ── */
@@ -291,9 +306,20 @@ footer {
   white-space: nowrap;
 }
 
-.q-btn:hover     { border-color: var(--red); }
-.q-btn svg       { width: 11px; height: 11px; transition: transform 0.2s; flex-shrink: 0; }
-.q-btn.open svg  { transform: rotate(180deg); }
+.q-btn:hover {
+  border-color: var(--red);
+}
+
+.q-btn svg {
+  width: 11px;
+  height: 11px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.q-btn.open svg {
+  transform: rotate(180deg);
+}
 
 .q-menu {
   position: absolute;
@@ -329,9 +355,17 @@ footer {
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.q-option:last-child { border-bottom: none; }
-.q-option:hover      { background: rgba(255, 255, 255, 0.04); }
-.q-option.active     { color: var(--red); }
+.q-option:last-child {
+  border-bottom: none;
+}
+
+.q-option:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.q-option.active {
+  color: var(--red);
+}
 
 .q-check {
   width: 14px;
@@ -340,7 +374,9 @@ footer {
   opacity: 0;
 }
 
-.q-option.active .q-check { opacity: 1; }
+.q-option.active .q-check {
+  opacity: 1;
+}
 
 .q-bw {
   margin-right: auto;
@@ -349,11 +385,17 @@ footer {
   padding-right: 4px;
 }
 
+/* ── Pre-stream state (before user taps play) ── */
+.pre-stream #status,
+.pre-stream #playerControls {
+  display: none;
+}
+
 /* ── Responsive ── */
 @media (max-width: 480px) {
-  .timer-bar { width: 38px; }
-  .logo-text { font-size: 14px; }
-  .timer span:first-child { display: none; }
+  .logo-text {
+    font-size: 14px;
+  }
 }
 
 /* ── PWA Install Banner ── */
@@ -417,7 +459,9 @@ footer {
   transition: background 0.2s;
 }
 
-.install-btn:hover { background: #e01535; }
+.install-btn:hover {
+  background: #e01535;
+}
 
 .install-close {
   background: none;
@@ -431,4 +475,6 @@ footer {
   transition: color 0.2s;
 }
 
-.install-close:hover { color: var(--text); }
+.install-close:hover {
+  color: var(--text);
+}

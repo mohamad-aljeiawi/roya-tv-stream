@@ -4,7 +4,8 @@
 
 const CONFIG = {
   // Supabase Edge Function endpoint
-  PROXY_URL: 'https://ibirujhtigdwqxezcfyi.supabase.co/functions/v1/roya-tv-stream',
+  PROXY_URL:
+    "https://ibirujhtigdwqxezcfyi.supabase.co/functions/v1/roya-tv-stream",
 
   // Renew token this many seconds before expiry
   RENEW_BEFORE: 240,
@@ -27,5 +28,8 @@ const CONFIG = {
     fragLoadingRetryDelay: 600,
     enableWorker: true,
     lowLatencyMode: false,
+    liveSyncDurationCount: 3,
+    liveMaxLatencyDurationCount: 10,
+    maxLiveSyncPlaybackRate: 1.5,
   },
 };

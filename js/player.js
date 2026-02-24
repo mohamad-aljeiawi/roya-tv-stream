@@ -3,9 +3,9 @@
    ══════════════════════════════════════ */
 
 const Player = (() => {
-  let hls       = null;
-  let renewTmr  = null;
-  let retryTmr  = null;
+  let hls = null;
+  let renewTmr = null;
+  let retryTmr = null;
 
   function getHls() {
     return hls;
@@ -13,19 +13,23 @@ const Player = (() => {
 
   /* ── Fetch stream URL from proxy ── */
   async function _fetchUrl() {
-    const res = await fetch(CONFIG.PROXY_URL + '?_=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) throw new Error('proxy_' + res.status);
+    const res = await fetch(CONFIG.PROXY_URL + "?_=" + Date.now(), {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("proxy_" + res.status);
     const json = await res.json();
     if (json.error) throw new Error(json.error);
     const url = json?.data?.secured_url;
-    if (!url) throw new Error('no_url');
+    if (!url) throw new Error("no_url");
     return url;
   }
 
   /* ── Destroy HLS instance ── */
   function _destroyHls() {
     if (hls) {
-      try { hls.destroy(); } catch (_) {}
+      try {
+        hls.destroy();
+      } catch (_) {}
       hls = null;
     }
   }
@@ -33,7 +37,10 @@ const Player = (() => {
   /* ── Schedule auto-renew before token expires ── */
   function _scheduleRenew(exp) {
     clearTimeout(renewTmr);
-    const ms = Math.max(8000, (exp - CONFIG.RENEW_BEFORE - Math.floor(Date.now() / 1000)) * 1000);
+    const ms = Math.max(
+      8000,
+      (exp - CONFIG.RENEW_BEFORE - Math.floor(Date.now() / 1000)) * 1000,
+    );
     renewTmr = setTimeout(() => load(true), ms);
   }
 
@@ -48,12 +55,14 @@ const Player = (() => {
     hls.loadSource(url);
     hls.attachMedia(DOM.vid);
 
+    Controls.init(DOM.vid, hls);
+
     hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
       hideOverlay();
-      setStatus('live', 'بث مباشر');
+      setStatus("live", "بث رؤيا المباشر");
       Quality.buildMenu(data.levels);
       Quality.restore(hls, data.levels);
-      DOM.vid.play().catch(() => {});
+      _promptPlay();
     });
 
     hls.on(Hls.Events.LEVEL_SWITCHED, (_, { level }) => {
@@ -63,7 +72,10 @@ const Player = (() => {
     hls.on(Hls.Events.ERROR, (_, data) => {
       if (!data.fatal) return;
       _destroyHls();
-      retryTmr = setTimeout(() => load(true, attempt + 1), _retryDelay(attempt));
+      retryTmr = setTimeout(
+        () => load(true, attempt + 1),
+        _retryDelay(attempt),
+      );
     });
   }
 
@@ -72,16 +84,60 @@ const Player = (() => {
     DOM.vid.src = url;
     DOM.vid.load();
 
-    DOM.vid.addEventListener('canplay', () => {
-      hideOverlay();
-      setStatus('live', 'بث مباشر');
-      DOM.qLabel.textContent = 'تلقائي';
-      DOM.vid.play().catch(() => {});
-    }, { once: true });
+    Controls.init(DOM.vid, null);
 
-    DOM.vid.addEventListener('error', () => {
-      retryTmr = setTimeout(() => load(true, attempt + 1), _retryDelay(attempt));
-    }, { once: true });
+    DOM.vid.addEventListener(
+      "canplay",
+      () => {
+        hideOverlay();
+        setStatus("live", "بث رؤيا المباشر");
+        DOM.qLabel.textContent = "تلقائي";
+        _promptPlay();
+      },
+      { once: true },
+    );
+
+    DOM.vid.addEventListener(
+      "error",
+      () => {
+        retryTmr = setTimeout(
+          () => load(true, attempt + 1),
+          _retryDelay(attempt),
+        );
+      },
+      { once: true },
+    );
+  }
+
+  /* ── Try unmuted play; if blocked, show play overlay ── */
+  function _promptPlay() {
+    DOM.vid.muted = false;
+    const p = DOM.vid.play();
+    if (p && p.catch) {
+      p.catch((err) => {
+        if (err.name === "NotAllowedError") {
+          // Browser blocked unmuted autoplay — show a play button so the
+          // user's tap provides the required gesture for unmuted audio.
+          _showPlayOverlay();
+        }
+      });
+    }
+  }
+
+  function _showPlayOverlay() {
+    const overlay = document.getElementById("playOverlay");
+    const btn = document.getElementById("playOverlayBtn");
+    overlay.style.display = "flex";
+
+    function _start() {
+      overlay.style.display = "none";
+      DOM.vid.muted = false;
+      DOM.vid.play().catch(() => {});
+      btn.removeEventListener("click", _start);
+      overlay.removeEventListener("click", _start);
+    }
+    btn.addEventListener("click", _start);
+    overlay.addEventListener("click", _start);
   }
 
   /* ── Main load function ── */
@@ -89,8 +145,8 @@ const Player = (() => {
     clearTimeout(retryTmr);
 
     if (!silent) {
-      setStatus('load', 'جاري التحميل...');
-      showOverlay('جاري تحميل البث...');
+      setStatus("load", "جاري التحميل...");
+      showOverlay("جاري تحميل البث...");
     }
 
     // Fetch URL
@@ -99,12 +155,20 @@ const Player = (() => {
       url = await _fetchUrl();
     } catch (err) {
       if (attempt < CONFIG.MAX_RETRY) {
-        setStatus('load', `إعادة المحاولة ${attempt + 1}/${CONFIG.MAX_RETRY}...`);
-        showOverlay('جاري إعادة الاتصال...');
-        retryTmr = setTimeout(() => load(true, attempt + 1), _retryDelay(attempt));
+        setStatus(
+          "load",
+          `إعادة المحاولة ${attempt + 1}/${CONFIG.MAX_RETRY}...`,
+        );
+        showOverlay("جاري إعادة الاتصال...");
+        retryTmr = setTimeout(
+          () => load(true, attempt + 1),
+          _retryDelay(attempt),
+        );
       } else {
-        setStatus('error', 'تعذر الاتصال');
-        showOverlay('<strong>تعذر تحميل البث</strong>تحقق من اتصالك بالإنترنت', true);
+        setStatus("error", "تعذر الاتصال");
+        Controls.showError(
+          "<strong>تعذر تحميل البث</strong><br>تحقق من اتصالك بالإنترنت",
+        );
       }
       return;
     }
@@ -118,11 +182,13 @@ const Player = (() => {
 
     if (Hls.isSupported()) {
       _setupHlsJs(url, attempt);
-    } else if (DOM.vid.canPlayType('application/vnd.apple.mpegurl')) {
+    } else if (DOM.vid.canPlayType("application/vnd.apple.mpegurl")) {
       _setupNative(url, attempt);
     } else {
-      showOverlay('<strong>المتصفح غير مدعوم</strong>استخدم Chrome أو Safari');
-      setStatus('error', 'غير مدعوم');
+      Controls.showError(
+        "<strong>المتصفح غير مدعوم</strong><br>استخدم Chrome أو Safari",
+      );
+      setStatus("error", "غير مدعوم");
       return;
     }
 
