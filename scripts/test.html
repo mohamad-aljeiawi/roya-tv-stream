@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="رويا TV">
+<title>رويا TV — بث مباشر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --red:#c8102e;--red-dark:#8b0b1f;--red-glow:rgba(200,16,46,0.15);
+  --bg:#090909;--surface:#111113;--surface2:#18181b;
+  --border:#222226;--text:#f0ede8;--muted:#666370;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-family:'Tajawal',sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+body{display:flex;flex-direction:column;background-image:radial-gradient(ellipse 100% 50% at 50% -5%,rgba(200,16,46,0.08),transparent 60%);padding-top:var(--safe-top);padding-bottom:var(--safe-bottom)}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;flex-shrink:0;background:rgba(9,9,9,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);gap:12px}
+.logo{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.logo-icon{width:30px;height:30px;background:var(--red);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;box-shadow:0 0 12px var(--red-glow)}
+.logo-text{font-size:16px;font-weight:700;letter-spacing:1.5px;white-space:nowrap}
+.logo-text em{color:var(--red);font-style:normal}
+
+.status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:4px 11px;border-radius:20px;background:var(--surface);border:1px solid var(--border);transition:border-color .4s,color .4s;white-space:nowrap}
+.status.live{border-color:rgba(200,16,46,.5)}
+.status.load{border-color:rgba(255,170,0,.4);color:#ffaa00}
+.status.error{border-color:rgba(255,60,60,.4);color:#ff5050}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:background .4s}
+.status.live .dot{background:var(--red);animation:blink 1.8s ease-in-out infinite}
+.status.load .dot{background:#ffaa00;animation:blink .7s ease-in-out infinite}
+.status.error .dot{background:#ff5050}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+
+.player-wrap{flex:1;position:relative;background:#000;overflow:hidden;min-height:0}
+video{width:100%;height:100%;display:block;object-fit:contain;background:#000}
+
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:opacity .35s,visibility .35s;z-index:20}
+.overlay.gone{opacity:0;visibility:hidden;pointer-events:none}
+.spinner{width:52px;height:52px;border:3px solid rgba(255,255,255,.08);border-top-color:var(--red);border-radius:50%;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.overlay-msg{font-size:14px;color:rgba(255,255,255,.55);text-align:center;line-height:1.7;max-width:260px}
+.overlay-msg strong{color:rgba(255,255,255,.85);display:block;margin-bottom:4px;font-size:15px}
+.btn-retry{padding:10px 28px;background:var(--red);color:#fff;border:none;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s,transform .15s;display:none}
+.btn-retry:hover{background:#e01535}
+.btn-retry:active{transform:scale(.97)}
+
+footer{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;flex-shrink:0;background:rgba(9,9,9,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);gap:12px;min-height:42px}
+
+.timer{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);flex-shrink:0}
+.timer-bar{width:55px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.timer-fill{height:100%;border-radius:2px;background:var(--red);transition:width 1s linear,background .5s}
+.timer-label{font-variant-numeric:tabular-nums;min-width:36px}
+
+.q-wrap{position:relative}
+.q-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;font-family:'Tajawal',sans-serif;font-size:12px;color:var(--text);font-weight:500;cursor:pointer;transition:border-color .2s;white-space:nowrap}
+.q-btn:hover{border-color:var(--red)}
+.q-btn svg{width:11px;height:11px;transition:transform .2s;flex-shrink:0}
+.q-btn.open svg{transform:rotate(180deg)}
+.q-menu{position:absolute;bottom:calc(100% + 7px);left:0;min-width:145px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 10px 32px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.03);opacity:0;visibility:hidden;transform:translateY(5px);transition:all .18s cubic-bezier(.4,0,.2,1);z-index:99}
+.q-menu.open{opacity:1;visibility:visible;transform:translateY(0)}
+.q-option{display:flex;align-items:center;gap:9px;padding:9px 13px;font-size:13px;cursor:pointer;transition:background .12s;border-bottom:1px solid rgba(255,255,255,.03)}
+.q-option:last-child{border-bottom:none}
+.q-option:hover{background:rgba(255,255,255,.04)}
+.q-option.active{color:var(--red)}
+.q-check{width:14px;height:14px;flex-shrink:0;opacity:0}
+.q-option.active .q-check{opacity:1}
+.q-bw{margin-right:auto;font-size:10.5px;color:var(--muted);padding-right:4px}
+
+@media(max-width:480px){
+  .timer-bar{width:38px}
+  .logo-text{font-size:14px}
+  .timer span:first-child{display:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">R</div>
+    <div class="logo-text">ROYA <em>TV</em></div>
+  </div>
+  <div class="status load" id="status">
+    <div class="dot"></div>
+    <span id="statusTxt">جاري التحميل...</span>
+  </div>
+</header>
+
+<div class="player-wrap">
+  <video id="vid" controls playsinline webkit-playsinline preload="none"></video>
+  <div class="overlay" id="overlay">
+    <div class="spinner" id="spinner"></div>
+    <div class="overlay-msg" id="overlayMsg">جاري تحميل البث...</div>
+    <button class="btn-retry" id="btnRetry">إعادة المحاولة</button>
+  </div>
+</div>
+
+<footer>
+  <div class="timer">
+    <span>صلاحية الرابط</span>
+    <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+    <span class="timer-label" id="timerLabel">--:--</span>
+  </div>
+  <div class="q-wrap" id="qWrap">
+    <button class="q-btn" id="qBtn" aria-haspopup="listbox" aria-expanded="false">
+      <span id="qLabel">جودة</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="q-menu" id="qMenu" role="listbox"></div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════
+   ROYA TV PLAYER — Production
+   ═══════════════════════════════ */
+const PROXY        = 'https://ibirujhtigdwqxezcfyi.supabase.co/functions/v1/roya-tv-stream';
+const RENEW_BEFORE = 240;       // تجديد قبل 4 دقائق
+const MAX_RETRY    = 6;
+
+let hls=null, tokenExpiry=0, tokenDuration=7200;
+let timerIv=null, renewTmr=null, retryTmr=null;
+let currentLevel = -1;
+
+const $ = id => document.getElementById(id);
+const vid        = $('vid');
+const overlay    = $('overlay');
+const spinner    = $('spinner');
+const overlayMsg = $('overlayMsg');
+const btnRetry   = $('btnRetry');
+const statusEl   = $('status');
+const statusTxt  = $('statusTxt');
+const timerFill  = $('timerFill');
+const timerLabel = $('timerLabel');
+const qBtn       = $('qBtn');
+const qMenu      = $('qMenu');
+const qLabel     = $('qLabel');
+
+/* ── Status ── */
+function setStatus(cls, txt) {
+  statusEl.className = 'status ' + cls;
+  statusTxt.textContent = txt;
+}
+
+/* ── Overlay ── */
+function showOverlay(html, retry=false) {
+  overlay.classList.remove('gone');
+  overlayMsg.innerHTML = html;
+  spinner.style.display  = retry ? 'none'  : 'block';
+  btnRetry.style.display = retry ? 'block' : 'none';
+}
+function hideOverlay() { overlay.classList.add('gone'); }
+
+/* ── Token timer ── */
+function startTimer(exp) {
+  tokenExpiry  = exp;
+  tokenDuration = exp - Math.floor(Date.now()/1000);
+  clearInterval(timerIv);
+  timerIv = setInterval(() => {
+    const left = tokenExpiry - Math.floor(Date.now()/1000);
+    if (left <= 0) {
+      timerLabel.textContent='منتهي';
+      timerFill.style.cssText='width:0%;background:#ff5050';
+      clearInterval(timerIv); return;
+    }
+    timerLabel.textContent = Math.floor(left/60)+':'+(left%60+'').padStart(2,'0');
+    const pct = Math.max(0,(left/tokenDuration)*100);
+    timerFill.style.width = pct+'%';
+    timerFill.style.background = pct>40?'var(--red)':pct>15?'#ffaa00':'#ff5050';
+  }, 1000);
+}
+function scheduleRenew(exp) {
+  clearTimeout(renewTmr);
+  const ms = Math.max(8000,(exp-RENEW_BEFORE-Math.floor(Date.now()/1000))*1000);
+  renewTmr = setTimeout(()=>loadStream(true), ms);
+}
+
+/* ── Quality menu ── */
+function buildMenu(levels) {
+  qMenu.innerHTML = '';
+  qMenu.appendChild(makeOpt(-1,'تلقائي',''));
+  [...levels].reverse().forEach((lvl,ri)=>{
+    const idx = levels.length-1-ri;
+    makeOpt(idx, lvl.height?lvl.height+'p':'طبقة '+idx, lvl.bitrate?Math.round(lvl.bitrate/1000)+' kbps':'');
+  });
+  setActiveOpt(currentLevel);
+}
+function makeOpt(idx,label,bw) {
+  const d = document.createElement('div');
+  d.className='q-option'; d.role='option'; d.dataset.level=idx;
+  d.innerHTML=`<svg class="q-check" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <span>${label}</span>${bw?`<span class="q-bw">${bw}</span>`:''}`;
+  d.addEventListener('click',()=>applyQuality(idx));
+  qMenu.appendChild(d);
+  return d;
+}
+function setActiveOpt(idx) {
+  qMenu.querySelectorAll('.q-option').forEach(el=>{
+    const a=parseInt(el.dataset.level)===idx;
+    el.classList.toggle('active',a);
+    el.querySelector('.q-check').style.opacity=a?'1':'0';
+  });
+}
+function applyQuality(idx) {
+  if (!hls) return;
+  currentLevel=idx; hls.currentLevel=idx;
+  setActiveOpt(idx);
+  qLabel.textContent = idx===-1?'تلقائي':(hls.levels[idx]?.height?hls.levels[idx].height+'p':'طبقة '+idx);
+  closeMenu();
+}
+
+qBtn.addEventListener('click', e=>{e.stopPropagation(); toggleMenu();});
+function toggleMenu(){
+  const open=qMenu.classList.toggle('open');
+  qBtn.classList.toggle('open',open);
+  qBtn.setAttribute('aria-expanded',open);
+  if(open) setTimeout(()=>document.addEventListener('click',outsideClick,{capture:true,once:true}),10);
+}
+function closeMenu(){qMenu.classList.remove('open');qBtn.classList.remove('open');qBtn.setAttribute('aria-expanded',false);}
+function outsideClick(e){if(!$('qWrap').contains(e.target))closeMenu();}
+
+/* ── Stream loader ── */
+async function fetchUrl() {
+  const res = await fetch(PROXY+'?_='+Date.now(),{cache:'no-store'});
+  if (!res.ok) throw new Error('proxy_'+res.status);
+  const json = await res.json();
+  if (json.error) throw new Error(json.error);
+  const url = json?.data?.secured_url;
+  if (!url) throw new Error('no_url');
+  return url;
+}
+
+function destroyHls(){if(hls){try{hls.destroy();}catch(_){}hls=null;}}
+
+async function loadStream(silent=false, attempt=0) {
+  clearTimeout(retryTmr);
+  if (!silent){setStatus('load','جاري التحميل...');showOverlay('جاري تحميل البث...');}
+
+  let url;
+  try { url = await fetchUrl(); }
+  catch(err) {
+    if (attempt < MAX_RETRY) {
+      const delay = Math.min(20000, 2000*Math.pow(1.5,attempt));
+      setStatus('load',`إعادة المحاولة ${attempt+1}/${MAX_RETRY}...`);
+      showOverlay('جاري إعادة الاتصال...');
+      retryTmr = setTimeout(()=>loadStream(true,attempt+1), delay);
+    } else {
+      setStatus('error','تعذر الاتصال');
+      showOverlay('<strong>تعذر تحميل البث</strong>تحقق من اتصالك بالإنترنت',true);
+    }
+    return;
+  }
+
+  const expM = url.match(/[?&]e=(\d+)/);
+  const exp  = expM ? parseInt(expM[1]) : 0;
+  const saved = currentLevel;
+  destroyHls();
+
+  /* HLS.js — Chrome / Firefox / Android */
+  if (Hls.isSupported()) {
+    hls = new Hls({
+      startLevel:-1, autoStartLoad:true,
+      manifestLoadingMaxRetry:4, levelLoadingMaxRetry:4, fragLoadingMaxRetry:4,
+      manifestLoadingRetryDelay:600, levelLoadingRetryDelay:600, fragLoadingRetryDelay:600,
+      enableWorker:true, lowLatencyMode:false,
+    });
+    hls.loadSource(url);
+    hls.attachMedia(vid);
+
+    hls.on(Hls.Events.MANIFEST_PARSED,(_,data)=>{
+      hideOverlay(); setStatus('live','بث مباشر');
+      buildMenu(data.levels);
+      hls.currentLevel=saved; currentLevel=saved;
+      qLabel.textContent = saved===-1?'تلقائي':(data.levels[saved]?.height?data.levels[saved].height+'p':'تلقائي');
+      vid.play().catch(()=>{});
+    });
+
+    hls.on(Hls.Events.LEVEL_SWITCHED,(_,{level})=>{
+      if(currentLevel===-1 && hls.levels[level]){
+        const h=hls.levels[level].height;
+        qLabel.textContent=h?`تلقائي (${h}p)`:'تلقائي';
+      }
+    });
+
+    hls.on(Hls.Events.ERROR,(_,data)=>{
+      if(!data.fatal) return;
+      destroyHls();
+      const delay=Math.min(20000,2000*Math.pow(1.5,attempt));
+      retryTmr=setTimeout(()=>loadStream(true,attempt+1),delay);
+    });
+
+  /* Native HLS — Safari / iOS */
+  } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
+    vid.src=url; vid.load();
+    vid.addEventListener('canplay',()=>{
+      hideOverlay(); setStatus('live','بث مباشر');
+      qLabel.textContent='تلقائي';
+      vid.play().catch(()=>{});
+    },{once:true});
+    vid.addEventListener('error',()=>{
+      const delay=Math.min(20000,2000*Math.pow(1.5,attempt));
+      retryTmr=setTimeout(()=>loadStream(true,attempt+1),delay);
+    },{once:true});
+
+  } else {
+    showOverlay('<strong>المتصفح غير مدعوم</strong>استخدم Chrome أو Safari');
+    setStatus('error','غير مدعوم'); return;
+  }
+
+  if (exp){ startTimer(exp); scheduleRenew(exp); }
+}
+
+/* ── Retry button ── */
+btnRetry.addEventListener('click',()=>loadStream(false,0));
+
+/* ── Page visibility: resume when user comes back ── */
+document.addEventListener('visibilitychange',()=>{
+  if (document.visibilityState!=='visible') return;
+  const now=Math.floor(Date.now()/1000);
+  if (tokenExpiry && tokenExpiry-now<60) loadStream(false,0);
+  else if (hls && vid.paused) vid.play().catch(()=>{});
+});
+
+/* ── Boot ── */
+loadStream();
+</script>
+</body>
+</html>
